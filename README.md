@@ -16,6 +16,6 @@ The arguments to `myproxygetcredential.sh` are:
 1. password on the remote MyProxy
 
 ## example:
-`make shell
+`make shell`
 
-/myproxygetcredential.sh "/C=US/O=Globus Consortium/OU=Globus Connect Service/CN=ec03d93c-000c-4803-b07c-776dcd52a6ba" 1.2.3.4 myusername 'password;1'`
+`/myproxygetcredential.sh "/C=US/O=Globus Consortium/OU=Globus Connect Service/CN=ec03d93c-000c-4803-b07c-776dcd52a6ba" 1.2.3.4 myusername 'password;1'`
