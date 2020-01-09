@@ -25,7 +25,7 @@ echo ''
 
 echo 'log on to remote MyProxy...'
 echo "$REMOTE_PASSWORD" | \
-	myproxy-logon -s "$REMOTE_SERVER" -l "$REMOTE_USERNAME" --verbose -N --stdin_pass
+	myproxy-logon -s "$REMOTE_SERVER" -l "$REMOTE_USERNAME" --verbose --stdin_pass
 echo ''
 
 echo 'OK'
