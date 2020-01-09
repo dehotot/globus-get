@@ -17,6 +17,6 @@ RUN yum -y install myproxy
 # install globus-url-copy tool
 RUN yum -y install globus-gass-copy-progs
 
-# install our script
-COPY myproxygetcredential.sh /
-
+# install our tools
+RUN mkdir -p /opt/globus-get/bin
+COPY bin/* /opt/globus-get/bin/

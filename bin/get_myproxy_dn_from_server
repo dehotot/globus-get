@@ -1,0 +1,67 @@
+#!/usr/bin/python
+from subprocess import Popen, PIPE
+import logging
+import tempfile
+import copy
+import os
+import re
+import shutil
+import argparse
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        'server', help='The address of the MyProxy server'
+    )
+    args = parser.parse_args()
+
+    gcmu = GCMU(args.server)
+    print gcmu.get_myproxy_dn_from_server()
+
+class GCMU(object):
+    logger = logging.getLogger("globus.connect.server.GCMU")
+    handler = logging.StreamHandler()
+    logger.addHandler(handler)
+
+    def __init__(self, myproxy_address, debug=False):
+        self.logger = GCMU.logger
+        if debug:
+            GCMU.handler.setLevel(logging.DEBUG)
+            GCMU.logger.setLevel(logging.DEBUG)
+        else:
+            GCMU.handler.setLevel(logging.INFO)
+            GCMU.logger.setLevel(logging.INFO)
+
+        self.myproxy_address = myproxy_address
+        self.__myproxy_dn = None
+
+
+    def get_myproxy_dn_from_server(self):
+        self.logger.debug("ENTER: get_myproxy_dn_from_server()")
+
+        if self.__myproxy_dn is None:
+            server_dn = None
+            self.logger.debug("fetching myproxy dn from server")
+            temppath = tempfile.mkdtemp()
+
+            args = [ 'myproxy-get-trustroots', '-b', '-s', self.myproxy_address ]
+            myproxy_bootstrap = Popen(args, stdout=PIPE, stderr=PIPE)
+            (out, err) = myproxy_bootstrap.communicate()
+            if out is not None:
+                out = out.decode('utf8')
+            if err is not None:
+                err = err.decode('utf8')
+            server_dn_match = re.search("New trusted MyProxy server: (.*)", err)
+            if server_dn_match is not None:
+                server_dn = server_dn_match.groups()[0]
+            else:
+                server_dn_match = re.search("MYPROXY_SERVER_DN=\"([^\"]*)\"", err)
+                if server_dn_match is not None:
+                    server_dn = server_dn_match.groups()[0]
+            shutil.rmtree(temppath, ignore_errors=True)
+            self.logger.debug("MyProxy DN is " + str(server_dn))
+            self.__myproxy_dn = server_dn
+        self.logger.debug("EXIT: get_myproxy_dn_from_server()")
+        return self.__myproxy_dn
+
+main()

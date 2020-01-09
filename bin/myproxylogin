@@ -1,0 +1,31 @@
+#!/bin/bash
+set -e
+REMOTE_SERVER="$1"
+REMOTE_USERNAME="$2"
+REMOTE_PASSWORD="$3"
+
+if [ -z "$REMOTE_SERVER" ];
+then
+	echo "ERROR: missing arguments"
+	echo "myproxylogin"
+	echo "authenticate to a MyProxy server"
+	echo "arguments:  myproxylogin address username password"
+	exit 1
+fi
+
+echo 'getting DN of remote MyProxy...'
+MYPROXY_SERVER_DN=$(/opt/globus-get/bin/get_myproxy_dn_from_server $REMOTE_SERVER)
+echo $MYPROXY_SERVER_DN
+echo ''
+
+echo 'getting host certificates from remote MyProxy...'
+export MYPROXY_SERVER_DN
+myproxy-get-trustroots -s "$REMOTE_SERVER" -b --verbose
+echo ''
+
+echo 'log on to remote MyProxy...'
+echo "$REMOTE_PASSWORD" | \
+	myproxy-logon -s "$REMOTE_SERVER" -l "$REMOTE_USERNAME" --verbose -N --stdin_pass
+echo ''
+
+echo 'OK'
